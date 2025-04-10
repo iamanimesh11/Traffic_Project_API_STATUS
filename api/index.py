@@ -5,11 +5,12 @@ from firebase_admin import credentials, firestore
 import os ,requests
 app = Flask(__name__)
 app.secret_key = "your-secret-key"  # Replace with a secure key
+firebase_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
 
 class ApiMonitor:
     def __init__(self, cred_path, collection="api_usage"):
         if not firebase_admin._apps:
-            cred = credentials.Certificate(cred_path)
+            cred = credentials.Certificate(json.loads(firebase_json))
             firebase_admin.initialize_app(cred)
 
         self.db = firestore.client()
@@ -50,8 +51,7 @@ class ApiMonitor:
         self.db.collection(self.collection).document(key).set(
             {f"{api_name}.is_down": is_down}, merge=True
         )
-
-monitor = ApiMonitor("firebase_config.json")  # adjust path if needed
+monitor = ApiMonitor()  # adjust path if needed
 reservations_collection = monitor.db.collection("reservations")
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1358363882833313882/TIip_rNgIAj5uIxAYJbmZ2YAHOQ-C9iwi-bFQ3qqY5FNqMcTUVD7udJM8_9ZMZzCDIVv"  # Replace with your webhook
 
