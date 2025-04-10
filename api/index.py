@@ -8,7 +8,7 @@ app.secret_key = "your-secret-key"  # Replace with a secure key
 firebase_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
 
 class ApiMonitor:
-    def __init__(self, cred_path, collection="api_usage"):
+    def __init__(self,  collection="api_usage"):
         if not firebase_admin._apps:
             cred = credentials.Certificate(json.loads(firebase_json))
             firebase_admin.initialize_app(cred)
