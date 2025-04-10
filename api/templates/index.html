@@ -5,214 +5,343 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Real-Time Traffic & Weather API</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css" />
+
   <style>
     body {
       background-color: #f8f9fa;
+      overflow-x: hidden;
     }
-    .card {
-      border-radius: 1rem;
+
+    h1, h2, h3, p, div {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
     }
-	.custom-nav-link {
-  display: block;
-  font-size: 1.25rem; /* Bigger text */
-  font-weight: 500;
-  color: #333;
-  padding: 14px 20px;
-  border-radius: 12px;
-  transition: all 0.25s ease;
-  text-decoration: none;
-}
 
-.custom-nav-link:hover,
-.custom-nav-link.active {
-  background-color: #0d6efd;
-  color: #fff;
-  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
-}
+    .custom-nav-link {
+      display: block;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #333;
+      padding: 10px 16px;
+      border-radius: 12px;
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
 
+    .custom-nav-link:hover,
+    .custom-nav-link.active {
+      background-color: #0d6efd;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+    }
+
+    .markdown-body {
+      padding: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0 !important;
+      }
+    }
   </style>
 </head>
+
 <body>
-<!-- Sidebar -->
-<div class="d-flex">
-  
-
-  
-  <div class="flex-grow-1" style="margin-left: 20px;">
-
-  <div class="container py-5">
-    <div class="text-center mb-4">
-      <h1 class="fw-bold">🚦 Real-Time Traffic & Weather API Status</h1>
-      <p class="text-muted">Monitor live API status and reserve access for tomorrow (if API is down)</p>
+  <!-- Navigation Bar for Small Screens -->
+  <nav class="navbar navbar-light bg-light d-md-none">
+    <div class="container-fluid">
+      <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+        ☰ Menu
+      </button>
     </div>
+  </nav>
 
-    {% if not show_api_info %}
-	<div class="row">
-    <!-- 👤 Initial User Info Form -->
-    <div class="col-md-8 mx-auto">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title">🚪 Knock knock...</h5>
-          <p class="card-text">
-            Before jumping into the app, I'd love to know a bit about who's visiting.  
-            Whether you're a recruiter, dev, or just curious, this helps me improve and connect. 🚀
-          </p>
-          <form action="/" method="POST">
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for="name" class="form-label">Your Name</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="e.g. John Doe" required>
-              </div>
-              <div class="col-md-6">
-                <label for="contact" class="form-label">Email or LinkedIn (optional)</label>
-                <input type="text" class="form-control" id="contact" name="contact" placeholder="e.g. john@example.com or linkedin.com/in/john">
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for="role" class="form-label">You're here as a...</label>
-                <select class="form-select" id="role" name="role">
-                  <option>Recruiter</option>
-                  <option>Developer</option>
-                  <option>Friend</option>
-                  <option>Just Curious 👀</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label for="purpose" class="form-label">What brings you here?</label>
-                <select class="form-select" id="purpose" name="purpose">
-                  <option>Hiring</option>
-                  <option>Checking out portfolio</option>
-                  <option>Collaboration</option>
-                  <option>Giving Feedback</option>
-                  <option>Other</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label for="message" class="form-label">Anything you'd like to share? (Optional)</label>
-              <textarea class="form-control" id="message" name="message" rows="3" placeholder="Your message here..."></textarea>
-            </div>
-
-            <div class="d-flex justify-content-between">
-              <button type="submit" class="btn btn-success">Submit</button>
-              <button type="submit" name="skip" class="btn btn-outline-secondary">Skip for now</button>
-            </div>
-          </form>
-        </div>
-      </div>
+  <!-- Sidebar Offcanvas for Mobile -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Navigation</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
-    </div>
-    {% else %}
-    {% if api_status == 'DOWN' %}
-    <div class="row">
-      <!-- Left: Priority Queue -->
-      <div class="col-md-4">
-        <div class="card shadow-sm mb-4">
-          <div class="card-body">
-            <h5 class="card-title">🔢 Priority Queue for Tomorrow</h5>
-            {% if queue %}
-            <ol class="list-group list-group-numbered mt-3">
-              {% for user in queue %}
-              <li class="list-group-item">{{ user }}</li>
-              {% endfor %}
-            </ol>
-            {% else %}
-            <p class="text-muted mt-2">No users have reserved access yet.</p>
-            {% endif %}
-          </div>
-        </div>
-      </div>
+    <div class="offcanvas-body">
+      <a href="#" class="custom-nav-link" onclick="showSection('apiStatus', event)">API Status</a>
+      <a href="#" class="custom-nav-link" onclick="showSection('readme', event)">README</a>
+      <a href="#" class="custom-nav-link" onclick="showSection('workflow', event)">Workflow</a>
+	  <a href="#" class="custom-nav-link" onclick="showSection('connect', event)">Connect</a>
+	  
+	  <a href="#" class="custom-nav-link" onclick="showSection('feedback', event)">Feedback</a>
 
-      <!-- Right: API status + form -->
-      <div class="col-md-7">
-        <div class="card shadow-sm mb-4">
-          <div class="card-body">
-            <h5 class="card-title mb-3">🛰 API Status:
-              <span class="badge bg-danger">{{ api_status }}</span>
-            </h5>
 
-            <div class="alert alert-warning mt-3" role="alert">
-              🚨 <strong>Oops! The API is currently unavailable.</strong><br>
-              This project runs on a free-tier API with limited daily requests (2,500 max). Today’s quota has been used up or the system marked it as temporarily down due to health checks.<br><br>
-              ⏳ <strong>But good news:</strong> You can <span class="text-success fw-bold">reserve your access for tomorrow</span> right now to get early access when the system is back!
-            </div>
-
-            <form action="/reserve" method="POST">
-              <div class="mb-3">
-                <label for="username" class="form-label">Create a unique username</label>
-                <input type="text" class="form-control" name="username" id="username" required placeholder="e.g. your_custom_id" />
-              </div>
-              <button type="submit" class="btn btn-primary">Reserve API Access for Tomorrow</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-	{% else %}
-<div class="row">
-  <!-- LEFT: Dev Info Card -->
-  <div class="col-md-4">
-    <div class="card shadow-sm mb-4 border-success">
-      <div class="card-body">
-        <h5 class="card-title">🐳 Docker Access Now Live!</h5>
-        <p class="text-success fw-bold">The API is online and ready for action.</p>
-        <p class="small text-muted mb-2">Pull the image and get started in seconds:</p>
-
-        <div class="bg-light border rounded p-2 mb-3 font-monospace">
-          docker pull animesh/api-traffic-weather:latest
-        </div>
-
-        <p class="mb-1">🚀 <em>"Containers don’t wait — and neither should you!"</em></p>
-        <p class="text-muted small">Note: Your session lasts 24 hours unless quota hits max.</p>
-      </div>
     </div>
   </div>
 
-  <!-- RIGHT: API Status -->
-  <div class="col-md-7">
-    <div class="card shadow-sm mb-4 border-success">
-      <div class="card-body">
-        <h5 class="card-title mb-3">🛰 API Status:
-          <span class="badge bg-success">{{ api_status }}</span>
-        </h5>
+  <!-- Desktop Sidebar -->
+  <div class="d-none d-md-block sidebar bg-light p-3 border-end" style="width: 220px; height: 100vh; position: fixed;">
+    <h5 class="mb-4">🔍 Navigation</h5>
+    <a href="#" class="custom-nav-link" onclick="showSection('apiStatus', event)">API Status</a>
+    <a href="#" class="custom-nav-link" onclick="showSection('readme', event)">README</a>
+    <a href="#" class="custom-nav-link" onclick="showSection('workflow', event)">Workflow</a>
+	<a href="#" class="custom-nav-link" onclick="showSection('connect', event)">Connect</a>
+	<a href="#" class="custom-nav-link" onclick="showSection('feedback', event)">Feedback</a>
 
-        <div class="alert alert-success">
-          ✅ <strong>Great news!</strong><br>
-          The API is <strong>live and healthy</strong>. You're good to go!<br><br>
-        </div>
-		<p class="text-muted small mb-2">Use it while it lasts 😅</p>
 
-        <hr>
-        <p class="mb-1">
-          ⚠️ <strong>Heads-up:</strong> This is a free-tier project, so API calls are limited (because I’m not made of money 💸).
-        </p>
-        <p class="mb-1">
-          When the quota hits the fan, you’ll see the “Reserve for Tomorrow” screen again.
-        </p>
-        <p>
-          Until then — <strong>code away 🚀</strong> and may your requests be fast and your rate limits merciful.
-        </p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" style="margin-left: 240px;">
+    <div class="container py-4" id="apiStatus" style="display: block;">
+      <div class="text-center mb-4">
+        <h1 class="fw-bold">🚦 Real-Time Traffic & Weather API Status</h1>
+        <p class="text-muted">Monitor live API status and reserve access for tomorrow (if API is down)</p>
       </div>
-	  
+
+        {% if not show_api_info %}
+        <!-- Intro Form -->
+        <div class="row">
+          <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm mb-4">
+              <div class="card-body">
+                <h5 class="card-title">🚪 Knock knock...</h5>
+                <p class="card-text">Before jumping into the app, I'd love to know a bit about who's visiting...</p>
+                <form action="/" method="POST">
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label for="name" class="form-label">Your Name</label>
+                      <input type="text" class="form-control" id="name" name="name" required placeholder="e.g. John Doe" />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="contact" class="form-label">Email or LinkedIn (optional)</label>
+                      <input type="text" class="form-control" id="contact" name="contact" placeholder="e.g. john@example.com or linkedin.com/in/john" />
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label for="role" class="form-label">You're here as a...</label>
+                      <select class="form-select" id="role" name="role">
+                        <option>Recruiter</option>
+                        <option>Developer</option>
+                        <option>Friend</option>
+                        <option>Just Curious 👀</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="purpose" class="form-label">What brings you here?</label>
+                      <select class="form-select" id="purpose" name="purpose">
+                        <option>Hiring</option>
+                        <option>Checking out portfolio</option>
+                        <option>Collaboration</option>
+                        <option>Giving Feedback</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="message" class="form-label">Anything you'd like to share? (Optional)</label>
+                    <textarea class="form-control" id="message" name="message" rows="3" placeholder="Your message here..."></textarea>
+                  </div>
+
+                  <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="submit" name="skip" class="btn btn-outline-secondary">Skip for now</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        {% if api_status == 'DOWN' %}
+        <!-- API Down: Show Queue & Form -->
+        <div class="row">
+          <!-- Priority Queue -->
+          <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+              <div class="card-body">
+                <h5 class="card-title">🔢 Priority Queue for Tomorrow</h5>
+                {% if queue %}
+                <ol class="list-group list-group-numbered mt-3">
+                  {% for user in queue %}
+                  <li class="list-group-item">{{ user }}</li>
+                  {% endfor %}
+                </ol>
+                {% else %}
+                <p class="text-muted mt-2">No users have reserved access yet.</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Reserve Form -->
+          <div class="col-md-7">
+            <div class="card shadow-sm mb-4">
+              <div class="card-body">
+                <h5 class="card-title mb-3">🛰 API Status:
+                  <span class="badge bg-danger">{{ api_status }}</span>
+                </h5>
+                <div class="alert alert-warning" role="alert">
+                  🚨 <strong>Oops! The API is currently unavailable.</strong><br />
+                  You can <strong class="text-success">reserve your access</strong> for tomorrow.
+                </div>
+                <form action="/reserve" method="POST">
+                  <label for="username" class="form-label">Create a unique username</label>
+                  <input type="text" class="form-control" name="username" id="username" required placeholder="e.g. your_custom_id" />
+                  <button type="submit" class="btn btn-primary mt-3">Reserve API Access for Tomorrow</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <!-- API is Live -->
+        <div class="row">
+          <!-- Docker Info -->
+          <div class="col-md-4">
+            <div class="card shadow-sm mb-4 border-success">
+              <div class="card-body">
+                <h5 class="card-title">🐳 Docker Access Now Live!</h5>
+                <p class="text-success fw-bold">The API is online and ready for action.</p>
+                <div class="bg-light border rounded p-2 mb-3 font-monospace">
+                  docker pull animesh/api-traffic-weather:latest
+                </div>
+                <p class="small text-muted">Session lasts 24 hours unless quota hits max.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- API Status -->
+          <div class="col-md-7">
+            <div class="card shadow-sm mb-4 border-success">
+              <div class="card-body">
+                <h5 class="card-title mb-3">🛰 API Status:
+                  <span class="badge bg-success">{{ api_status }}</span>
+                </h5>
+                <div class="alert alert-success">
+                  ✅ <strong>The API is live and healthy.</strong><br />You’re good to go!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="text-center mt-5 text-muted">
+          <p>Made with ❤️ by <strong>Animesh</strong></p>
+        </div>
+      </div>
+
+      <!-- README Section -->
+     <div class="container py-4" id="readme" style="display: none;">
+  <div class="markdown-body" style="max-width: 100%; margin: 0; padding: 0;">
+    <!-- Markdown will be injected here -->
+  </div>
+</div>
+<!-- Connect Section -->
+<div class="container py-4" id="connect" style="display: none;">
+  <h2 class="mb-4">🤝 Connect with Me</h2>
+  <div class="row g-4">
+
+    <!-- LinkedIn Card -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm h-100 text-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" class="card-img-top p-4" alt="LinkedIn Logo" style="height: 100px; object-fit: contain;">
+        <div class="card-body">
+          <h5 class="card-title">LinkedIn</h5>
+          <p class="card-text">Connect with me professionally.</p>
+          <a href="https://www.linkedin.com/in/your-username" class="btn btn-primary" target="_blank">View Profile</a>
+        </div>
+      </div>
     </div>
+
+    <!-- Email Card -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm h-100 text-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" class="card-img-top p-4" alt="Email Icon" style="height: 100px; object-fit: contain;">
+        <div class="card-body">
+          <h5 class="card-title">Email</h5>
+          <p class="card-text">Drop me an email anytime.</p>
+          <a href="mailto:your.email@example.com" class="btn btn-danger">Send Email</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discord Card -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm h-100 text-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111370.png" class="card-img-top p-4" alt="Discord Logo" style="height: 100px; object-fit: contain;">
+        <div class="card-body">
+          <h5 class="card-title">Discord</h5>
+          <p class="card-text">Join me on Discord or DM me!</p>
+          <p class="text-muted mb-0"><strong>yourdiscord#1234</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GitHub Card -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm h-100 text-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" class="card-img-top p-4" alt="GitHub Logo" style="height: 100px; object-fit: contain;">
+        <div class="card-body">
+          <h5 class="card-title">GitHubb</h5>
+          <p class="card-text">Explore my projects and code.</p>
+          <a href="https://github.com/your-github" class="btn btn-dark" target="_blank">Visit GitHub</a>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-    {% endif %}
-    {% endif %}
+<!-- Feedback Section -->
+<div class="container py-4" id="feedback" style="display: none;">
+  <h2>💬 We'd Love Your Feedback!</h2>
+  <p class="text-muted">Let us know how we can improve this app or your experience.</p>
+  <form action="/submit-feedback" method="POST">
+    <div class="mb-3">
+      <label for="nameFeedback" class="form-label">Your Name</label>
+      <input type="text" class="form-control" id="nameFeedback" name="nameFeedback" placeholder="John Doe" required>
+    </div>
+    <div class="mb-3">
+      <label for="emailFeedback" class="form-label">Email (optional)</label>
+      <input type="email" class="form-control" id="emailFeedback" name="emailFeedback" placeholder="you@example.com">
+    </div>
+    <div class="mb-3">
+      <label for="messageFeedback" class="form-label">Your Feedback</label>
+      <textarea class="form-control" id="messageFeedback" name="messageFeedback" rows="4" required placeholder="What did you love? What can we do better?"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+  </form>
+</div>
 
-    <!-- Footer (always shown) -->
-    <div class="text-center mt-5 text-muted">
-      <p>Made with ❤️ by <strong>Animesh</strong></p>
+
+      <!-- Workflow Section -->
+      <div class="container py-4" id="workflow" style="display: none;">
+        <h2>🔄 Workflow</h2>
+        <p>Details about the API workflow, CI/CD, or data flow can go here.</p>
+        <div style="position: relative; width: 100%; height: 0; padding-top: 100.0000%;
+ padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
+ border-radius: 8px; will-change: transform;">
+  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
+    src="https://www.canva.com/design/DAGh5KDbTKQ/y8tjSorL17l5vWz83W6nQQ/watch?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+  </iframe>
+</div>
+<a href="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAGh5KDbTKQ&#x2F;y8tjSorL17l5vWz83W6nQQ&#x2F;watch?utm_content=DAGh5KDbTKQ&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener">docker pull &lt;image_name&gt;:&lt;tag&gt;</a> by ANIMESH SINGH
+      </div>
     </div>
   </div>
 
   <!-- Modals -->
-  <div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
+<div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-success">
         <div class="modal-header bg-success text-white">
@@ -246,7 +375,7 @@
   </div>
 </div>
 
-  <div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
+<div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-danger">
         <div class="modal-header bg-danger text-white">
@@ -263,12 +392,44 @@
       </div>
     </div>
   </div>
-</div>     <!-- Close d-flex wrapper -->
 
 
   <!-- Bootstrap & Flash Script -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- 📜 Script to Fetch + Render -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("https://raw.githubusercontent.com/iamanimesh11/Real-time-traffic-and-weather-ETL-project-Streamlit-app/refs/heads/main/README.md")
+  .then(res => res.text())
+  .then(md => {
+    const html = marked.parse(md);
+    document.querySelector("#readme .markdown-body").innerHTML = html;
+  });
+
+  });
+</script>
   <script>
+  function showSection(id, event) {
+const sections = ['apiStatus', 'readme', 'workflow', 'connect','feedback'];
+    sections.forEach(section => {
+      document.getElementById(section).style.display = (section === id) ? 'block' : 'none';
+    });
+
+    // Update active link
+    document.querySelectorAll('.custom-nav-link').forEach(link => {
+      link.classList.remove('active');
+    });
+    if (event) {
+      event.target.classList.add('active');
+    }
+	// 👇 Hide mobile offcanvas if it's open
+    const offcanvasEl = document.querySelector('#mobileSidebar');
+    if (offcanvasEl && bootstrap.Offcanvas.getInstance(offcanvasEl)) {
+      bootstrap.Offcanvas.getInstance(offcanvasEl).hide();
+    }
+  }
+
     window.addEventListener("DOMContentLoaded", function () {
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
@@ -286,8 +447,18 @@
           {% endif %}
         {% endfor %}
       {% endwith %}
+	  // Optional: Auto-select based on hash
+    const hash = window.location.hash.replace('#', '');
+    if (['apiStatus', 'readme', 'workflow'].includes(hash)) {
+      showSection(hash, new Event('click'));
+    } else {
+      showSection('apiStatus', new Event('click'));
+    }
+
     });
+   
   </script>
   
+
 </body>
 </html>
