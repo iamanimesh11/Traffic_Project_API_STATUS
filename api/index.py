@@ -7,11 +7,13 @@ import os ,requests
 app = Flask(__name__)
 app.secret_key = "your-secret-key"  # Replace with a secure key
 firebase_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
-
+# Replace escaped newlines with real ones
+firebase_dict = json.loads(firebase_json)
+firebase_dict["private_key"] = firebase_dict["private_key"].replace("\\n", "\n")
 class ApiMonitor:
     def __init__(self,  collection="api_usage"):
         if not firebase_admin._apps:
-            cred = credentials.Certificate(json.loads(firebase_json))
+            cred = credentials.Certificate(firebase_dict)
             firebase_admin.initialize_app(cred)
 
         self.db = firestore.client()
