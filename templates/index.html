@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Real-Time Traffic & Weather API</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .card {
+      border-radius: 1rem;
+    }
+	.custom-nav-link {
+  display: block;
+  font-size: 1.25rem; /* Bigger text */
+  font-weight: 500;
+  color: #333;
+  padding: 14px 20px;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.custom-nav-link:hover,
+.custom-nav-link.active {
+  background-color: #0d6efd;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+}
+
+  </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="d-flex">
+  
+
+  
+  <div class="flex-grow-1" style="margin-left: 20px;">
+
+  <div class="container py-5">
+    <div class="text-center mb-4">
+      <h1 class="fw-bold">🚦 Real-Time Traffic & Weather API Status</h1>
+      <p class="text-muted">Monitor live API status and reserve access for tomorrow (if API is down)</p>
+    </div>
+
+    {% if not show_api_info %}
+	<div class="row">
+    <!-- 👤 Initial User Info Form -->
+    <div class="col-md-8 mx-auto">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="card-title">🚪 Knock knock...</h5>
+          <p class="card-text">
+            Before jumping into the app, I'd love to know a bit about who's visiting.  
+            Whether you're a recruiter, dev, or just curious, this helps me improve and connect. 🚀
+          </p>
+          <form action="/" method="POST">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="name" class="form-label">Your Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="e.g. John Doe" required>
+              </div>
+              <div class="col-md-6">
+                <label for="contact" class="form-label">Email or LinkedIn (optional)</label>
+                <input type="text" class="form-control" id="contact" name="contact" placeholder="e.g. john@example.com or linkedin.com/in/john">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="role" class="form-label">You're here as a...</label>
+                <select class="form-select" id="role" name="role">
+                  <option>Recruiter</option>
+                  <option>Developer</option>
+                  <option>Friend</option>
+                  <option>Just Curious 👀</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="purpose" class="form-label">What brings you here?</label>
+                <select class="form-select" id="purpose" name="purpose">
+                  <option>Hiring</option>
+                  <option>Checking out portfolio</option>
+                  <option>Collaboration</option>
+                  <option>Giving Feedback</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="message" class="form-label">Anything you'd like to share? (Optional)</label>
+              <textarea class="form-control" id="message" name="message" rows="3" placeholder="Your message here..."></textarea>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <button type="submit" class="btn btn-success">Submit</button>
+              <button type="submit" name="skip" class="btn btn-outline-secondary">Skip for now</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    </div>
+    {% else %}
+    {% if api_status == 'DOWN' %}
+    <div class="row">
+      <!-- Left: Priority Queue -->
+      <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title">🔢 Priority Queue for Tomorrow</h5>
+            {% if queue %}
+            <ol class="list-group list-group-numbered mt-3">
+              {% for user in queue %}
+              <li class="list-group-item">{{ user }}</li>
+              {% endfor %}
+            </ol>
+            {% else %}
+            <p class="text-muted mt-2">No users have reserved access yet.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: API status + form -->
+      <div class="col-md-7">
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">🛰 API Status:
+              <span class="badge bg-danger">{{ api_status }}</span>
+            </h5>
+
+            <div class="alert alert-warning mt-3" role="alert">
+              🚨 <strong>Oops! The API is currently unavailable.</strong><br>
+              This project runs on a free-tier API with limited daily requests (2,500 max). Today’s quota has been used up or the system marked it as temporarily down due to health checks.<br><br>
+              ⏳ <strong>But good news:</strong> You can <span class="text-success fw-bold">reserve your access for tomorrow</span> right now to get early access when the system is back!
+            </div>
+
+            <form action="/reserve" method="POST">
+              <div class="mb-3">
+                <label for="username" class="form-label">Create a unique username</label>
+                <input type="text" class="form-control" name="username" id="username" required placeholder="e.g. your_custom_id" />
+              </div>
+              <button type="submit" class="btn btn-primary">Reserve API Access for Tomorrow</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+	{% else %}
+<div class="row">
+  <!-- LEFT: Dev Info Card -->
+  <div class="col-md-4">
+    <div class="card shadow-sm mb-4 border-success">
+      <div class="card-body">
+        <h5 class="card-title">🐳 Docker Access Now Live!</h5>
+        <p class="text-success fw-bold">The API is online and ready for action.</p>
+        <p class="small text-muted mb-2">Pull the image and get started in seconds:</p>
+
+        <div class="bg-light border rounded p-2 mb-3 font-monospace">
+          docker pull animesh/api-traffic-weather:latest
+        </div>
+
+        <p class="mb-1">🚀 <em>"Containers don’t wait — and neither should you!"</em></p>
+        <p class="text-muted small">Note: Your session lasts 24 hours unless quota hits max.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: API Status -->
+  <div class="col-md-7">
+    <div class="card shadow-sm mb-4 border-success">
+      <div class="card-body">
+        <h5 class="card-title mb-3">🛰 API Status:
+          <span class="badge bg-success">{{ api_status }}</span>
+        </h5>
+
+        <div class="alert alert-success">
+          ✅ <strong>Great news!</strong><br>
+          The API is <strong>live and healthy</strong>. You're good to go!<br><br>
+        </div>
+		<p class="text-muted small mb-2">Use it while it lasts 😅</p>
+
+        <hr>
+        <p class="mb-1">
+          ⚠️ <strong>Heads-up:</strong> This is a free-tier project, so API calls are limited (because I’m not made of money 💸).
+        </p>
+        <p class="mb-1">
+          When the quota hits the fan, you’ll see the “Reserve for Tomorrow” screen again.
+        </p>
+        <p>
+          Until then — <strong>code away 🚀</strong> and may your requests be fast and your rate limits merciful.
+        </p>
+      </div>
+	  
+    </div>
+  </div>
+</div>
+
+    {% endif %}
+    {% endif %}
+
+    <!-- Footer (always shown) -->
+    <div class="text-center mt-5 text-muted">
+      <p>Made with ❤️ by <strong>Animesh</strong></p>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-success">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="reservationModalLabel">Reservation Successful</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Username:</strong> <span id="reservedUsername"></span></p>
+          <p>Please save this username. You can use it to pull the Docker image tomorrow. Your access will expire in 24 hours.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-bs-dismiss="modal">Got it</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<!-- Thank You Modal -->
+<div class="modal fade" id="thankYouModal" tabindex="-1" aria-labelledby="thankYouModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-success">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="thankYouModalLabel">🎉 Thanks for your time!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+  <div class="modal fade" id="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="duplicateModalLabel">Username Already Reserved</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Username:</strong> <span id="duplicateUsername"></span></p>
+          <p>This username is already reserved for today. Please choose another.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Okay</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>     <!-- Close d-flex wrapper -->
+
+
+  <!-- Bootstrap & Flash Script -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", function () {
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          {% if category == "reserved" %}
+            document.getElementById("reservedUsername").innerText = "{{ message }}";
+            new bootstrap.Modal(document.getElementById("reservationModal")).show();
+          {% elif category == "duplicate" %}
+            document.getElementById("duplicateUsername").innerText = "{{ message }}";
+            new bootstrap.Modal(document.getElementById("duplicateModal")).show();
+          {% elif category == "skip" %}
+            document.getElementById("skipMessage").innerText = `{{ message }}`;
+            new bootstrap.Modal(document.getElementById("skipModal")).show();
+			{% elif category == "thank_you" %}
+          new bootstrap.Modal(document.getElementById("thankYouModal")).show();
+          {% endif %}
+        {% endfor %}
+      {% endwith %}
+    });
+  </script>
+  
+</body>
+</html>
