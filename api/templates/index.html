@@ -444,6 +444,8 @@ const sections = ['apiStatus', 'readme', 'workflow', 'connect','feedback'];
             new bootstrap.Modal(document.getElementById("skipModal")).show();
 			{% elif category == "thank_you" %}
           new bootstrap.Modal(document.getElementById("thankYouModal")).show();
+		  {% elif category == "submit-feedback" %}
+          new bootstrap.Modal(document.getElementById("thankYouModal")).show();
           {% endif %}
         {% endfor %}
       {% endwith %}
