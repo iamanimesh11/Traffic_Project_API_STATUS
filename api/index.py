@@ -4,6 +4,11 @@ import firebase_admin
 import json
 from firebase_admin import credentials, firestore
 import os ,requests
+
+# Load .env in local dev
+from dotenv import load_dotenv
+load_dotenv()
+
 app = Flask(__name__)
 app.secret_key = "your-secret-key"  # Replace with a secure key
 firebase_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
@@ -67,7 +72,7 @@ def API_VERCEL_PAGE_visited():
     try:
         requests.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]})
     except Exception as e:
-        print(f"Failed to send container start alert: {e}")
+        console.log(f"Failed to send container start alert: {e}")
 
 def send_skip_alert_to_discord():
     embed = {
@@ -99,9 +104,32 @@ def send_to_discord(name,email, role, purpose, message):
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]})
         if response.status_code != 204:
-            st.warning(f"⚠️ Discord webhook failed with status {response.status_code}")
+            print(f"⚠️ Discord webhook failed with status {response.status_code}")
     except Exception as e:
-        st.warning(f"⚠️ Could not send to Discord: {e}")        
+        print(f"⚠️ Could not send to Discord: {e}")    
+
+def send_to_discord_fedback(name,email,message):
+    embed = {
+        "title": "🚀 Vercel form feedback user Info",
+        "color": 3447003,
+        "fields": [
+            {"name": "🧑 Name", "value": name, "inline": True},
+            {"name": "📫 Email/Linkedin", "value": email if email else "Not provided", "inline": True},
+            {"name": "🎯 message", "value": message if role else "Not provided", "inline": False},
+           
+        ]
+    }
+    if message:
+        embed["fields"].append({"name": "💬 Feedback / Comment", "value": message, "inline": False})
+
+    try:
+        response = requests.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]})
+        if response.status_code != 204:
+            print(f"⚠️ Discord webhook failed with status {response.status_code}")
+    except Exception as e:
+        print(f"⚠️ Could not send to Discord: {e}")     
+
+        
 @app.route("/", methods=["GET","POST"])
 def index():
     show_api_info = False
@@ -191,6 +219,18 @@ def reserve():
     flash(username, "reserved")
     return redirect(url_for("index", show_api="1"))
 
+
+@app.route("/submit-feedback", methods=["POST"])
+def reserve():
+    nameFeedback = request.form.get("nameFeedback")
+    emailFeedback = request.form.get("emailFeedback")
+    messageFeedback = request.form.get("messageFeedback")
+
+    send_to_discord_fedback(nameFeedback ,emailFeedback,messageFeedback)
+
+    
+    flash(username, "submit-feedback")
+    return redirect(url_for("index", show_api="1"))
 
 
     
