@@ -236,7 +236,7 @@ def submitfeedback():
     send_to_discord_fedback(nameFeedback, emailFeedback, messageFeedback)
 
     # Flash a confirmation message (not "username" unless defined)
-    flash("Thank you for your feedback!", "success")  # 'success' is the category
+    flash("Thank you for your feedback!", "fsuccess")  # 'success' is the category
     return redirect(url_for("index"))
 
     
