@@ -227,7 +227,7 @@ def reserve():
 
 
 @app.route("/submit-feedback", methods=["POST"])
-def reserve():
+def submitfeedback():
     nameFeedback = request.form.get("nameFeedback")
     emailFeedback = request.form.get("emailFeedback")
     messageFeedback = request.form.get("messageFeedback")
