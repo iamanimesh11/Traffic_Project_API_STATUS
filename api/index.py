@@ -78,7 +78,7 @@ def API_VERCEL_PAGE_visited():
     try:
         requests.post(DISCORD_WEBHOOK_URL, json={"embeds": [embed]})
     except Exception as e:
-        console.log(f"Failed to send container start alert: {e}")
+        print(f"Failed to send container start alert: {e}")
 
 def send_skip_alert_to_discord():
     embed = {
@@ -121,7 +121,7 @@ def send_to_discord_fedback(name,email,message):
         "fields": [
             {"name": "🧑 Name", "value": name, "inline": True},
             {"name": "📫 Email/Linkedin", "value": email if email else "Not provided", "inline": True},
-            {"name": "🎯 message", "value": message if role else "Not provided", "inline": False},
+            {"name": "🎯 message", "value": message if message else "Not provided", "inline": False},
            
         ]
     }
