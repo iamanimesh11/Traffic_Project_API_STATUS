@@ -7,12 +7,18 @@ import os ,requests
 
 # Load .env in local dev
 from dotenv import load_dotenv
-load_dotenv()
+# Load environment variables from .env only in development
+if os.environ.get("FLASK_ENV") != "production":
+    load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "your-secret-key"  # Replace with a secure key
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "fallback-dev-secret")
+
 firebase_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
-# Replace escaped newlines with real ones
+
+if not firebase_json:
+    raise ValueError("Missing GOOGLE_CREDENTIALS_JSON in environment")
+
 firebase_dict = json.loads(firebase_json)
 firebase_dict["private_key"] = firebase_dict["private_key"].replace("\\n", "\n")
 class ApiMonitor:
