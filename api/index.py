@@ -232,12 +232,12 @@ def submitfeedback():
     emailFeedback = request.form.get("emailFeedback")
     messageFeedback = request.form.get("messageFeedback")
 
-    send_to_discord_fedback(nameFeedback ,emailFeedback,messageFeedback)
+    # Assuming this function sends feedback to Discord
+    send_to_discord_fedback(nameFeedback, emailFeedback, messageFeedback)
 
-    
-    flash(username, "submit-feedback")
-    return redirect(url_for("index", show_api="1"))
-
+    # Flash a confirmation message (not "username" unless defined)
+    flash("Thank you for your feedback!", "success")  # 'success' is the category
+    return redirect(url_for("index"))
 
     
 if __name__ == "__main__":
